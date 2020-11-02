@@ -19,6 +19,7 @@ void Simulation::prepare()
     parser.readFile();
     simulationT = parser.getSimulationType();
     energyMC = parser.getEnergy();
+    simulationStepsMC = parser.getNumberOfSimulationSteps();
     board.setBoard(parser.getDimensions(), 
                    parser.getGrainsAmount(),
                    parser.getNeighbourhoodType(),
@@ -30,7 +31,7 @@ void Simulation::start()
     auto start = std::chrono::high_resolution_clock::now();
     board.startCASimulation();
     if(simulationT == monteCarlo)
-        board.startMCSimulation(energyMC);
+        board.startMCSimulation(simulationStepsMC, energyMC);
     auto finish = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = finish - start;
     simulationTime = elapsed.count();

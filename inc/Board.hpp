@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <iostream>
+#include <random>
 
 #include "globals.hpp"
 
@@ -25,25 +26,34 @@ public:
 class Board
 {
 private:
+    double kt = -1.2;
+    std::default_random_engine rand_engine;
     int dimensions[DIMENSION];
     int grainsAmount;
     neighbourhoodType neighbourhood;
     boundaryCondition boundary;
     vector<vector<vector<Cell>>> board;
     vector<vector<vector<Cell>>> backBoard;
+    vector<int> indexesMC;
     int freeFields;
-public:
-    Board();
-    Board(int _dimensions[DIMENSION], int _grainsAmount,
-          neighbourhoodType _neighbourhood, boundaryCondition _boundary);
+    int numOfCells;
+
     void generate();
     void printBoard();
     void fillSurroundingCells(int i, int j, int k);
     void iterateCA();
-    void startCASimulation();
-    void startMCSimulation(double energy);
+    void iterateMC(double energy);
     void propagate();
     vector<vector<int>> getIndexes(int i, int j, int k);
+    vector<int> getMCIndex(int i);
+
+public:
+    Board();
+    Board(int _dimensions[DIMENSION], int _grainsAmount,
+          neighbourhoodType _neighbourhood, boundaryCondition _boundary);
+
+    void startCASimulation();
+    void startMCSimulation(int iterations, double energy);
     void setBoard(int _dimensions[DIMENSION], int _grainsAmount,
           neighbourhoodType _neighbourhood, boundaryCondition _boundary);
     friend ostream & operator<< (ostream &outputStream, Board &board);

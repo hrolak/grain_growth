@@ -1,6 +1,6 @@
+#include <algorithm>
 #include <iostream>
 #include <time.h>
-#include <random>
 
 #include <chrono>
 #include <thread>
@@ -75,7 +75,7 @@ Board::Board(int *_dimensions, int _grainsAmount,
                                              vector<vector<Cell>>(dimensions[1] + BORDER,
                                              vector<Cell>(dimensions[2] + BORDER)));
     backBoard = _backBoard;
-    
+    numOfCells = dimensions[0]*dimensions[1]*dimensions[2];
 }
 
 void Board::setBoard(int _dimensions[DIMENSION], int _grainsAmount,
@@ -98,7 +98,9 @@ void Board::setBoard(int _dimensions[DIMENSION], int _grainsAmount,
                                              vector<vector<Cell>>(dimensions[1] + BORDER,
                                              vector<Cell>(dimensions[2] + BORDER)));
     backBoard = _backBoard;
+    numOfCells = dimensions[0]*dimensions[1]*dimensions[2];
 }
+
 void Board::printBoard()
 {
     if(printGraph)
@@ -138,11 +140,14 @@ void Board::generate()
     }
     freeFields -= grainsAmount;
     propagate();
+
+    for(int i = 0; i < numOfCells; ++i) indexesMC.push_back(i);
+    random_shuffle(indexesMC.begin(), indexesMC.end());
 }
 
 void Board::propagate()
 {
-    freeFields = dimensions[0]*dimensions[1]*dimensions[2];
+    freeFields = numOfCells;
     for(int i = 1; i <= dimensions[0]; ++i)
         for(int j = 1; j <= dimensions[1]; ++j)
             for(int k = 1; k <= dimensions[2]; ++k)
@@ -185,6 +190,15 @@ vector<vector<int>> Board::getIndexes(int i, int j, int k)
     return indexes;
 }
 
+vector<int> Board::getMCIndex(int i)
+{
+    vector<int> indexes;
+    indexes.push_back( (i / (dimensions[1]*dimensions[2])) + 1);
+    indexes.push_back( ((i % (dimensions[1]*dimensions[2])) / dimensions[2]) + 1 );
+    indexes.push_back( ((i % (dimensions[1]*dimensions[2])) % dimensions[2]) + 1 );
+    return indexes;
+}
+
 void Board::fillSurroundingCells(int i, int j, int k)
 {
     if(board[i][j][k].getState())
@@ -222,6 +236,45 @@ void Board::iterateCA()
     propagate();
 }
 
+void Board::iterateMC(double energy)
+{
+
+    for(int i=0;i<numOfCells;++i)
+    {
+        vector<int> ind = getMCIndex(indexesMC[i]);
+        vector<vector<int>> bor = getIndexes(ind[0], ind[1], ind[2]);
+        int nextCellId = 0;
+        Cell nextCell;
+        int rndInx = rand() % bor.size();
+
+        while(nextCellId == 0)
+        {
+            
+            nextCell = board[ bor[rndInx][0] ][ bor[rndInx][1] ][ bor[rndInx][2] ];
+            nextCellId = nextCell.getId();
+            rndInx = (rndInx+1) % bor.size();
+        }
+
+        Cell currCell = board[ ind[0] ][ ind[1] ][ ind[2] ];
+        int currCellId = currCell.getId();
+        double currEnergy = 0;
+        double nextEnergy = 0;
+        for(int j = 0 ; j<bor.size(); ++j)
+        {
+            int brdCellId = board[ bor[j][0] ][ bor[j][1] ][ bor[j][2] ].getId();
+            if(brdCellId != currCellId) currEnergy+=energy;
+            if(brdCellId != nextCellId) nextEnergy+=energy;
+        }
+        double deltaEnergy = nextEnergy - currEnergy;
+        double prob = exp(-1.0*deltaEnergy/kt);
+        bernoulli_distribution d(prob);
+        if(deltaEnergy<=0 || d(rand_engine))
+        {
+            board[ ind[0] ][ ind[1] ][ ind[2] ] = nextCell;
+        }
+    }
+}
+
 void Board::startCASimulation()
 {
     generate();
@@ -233,7 +286,11 @@ void Board::startCASimulation()
     }
 }
 
-void Board::startMCSimulation(double energy)
+void Board::startMCSimulation(int iterations, double energy)
 {
-    cout << "MOMTEKARLO\n";
+    for(int i = 0; i<iterations; ++i)
+    {
+        iterateMC(energy);
+        printBoard();
+    }
 }

@@ -17,6 +17,7 @@ private:
     double simulationTime;
     simulationType simulationT;
     double energyMC;
+    int simulationStepsMC;
 
 public:
     Simulation();
