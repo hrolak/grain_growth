@@ -51,6 +51,11 @@ int FileParser::getNumberOfSimulationSteps()
     return numberOfSimulationSteps;
 }
 
+double FileParser::getEnergy()
+{
+    return energy;
+}
+
 void FileParser::readFile()
 {
     ifstream inFile(inputFile);

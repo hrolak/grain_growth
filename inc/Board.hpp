@@ -39,8 +39,9 @@ public:
     void generate();
     void printBoard();
     void fillSurroundingCells(int i, int j, int k);
-    void iterate();
-    void startSimulation();
+    void iterateCA();
+    void startCASimulation();
+    void startMCSimulation(double energy);
     void propagate();
     vector<vector<int>> getIndexes(int i, int j, int k);
     void setBoard(int _dimensions[DIMENSION], int _grainsAmount,
@@ -59,7 +60,7 @@ inline ostream & operator<< (ostream &outputStream, Board &board)
     {
         for(int j = 1; j<=board.dimensions[1]; ++j)
         {
-            for(int k = 1; k<=board.dimensions[0]; ++k)
+            for(int k = 1; k<=board.dimensions[2]; ++k)
             {
                 outputStream << i << '\t' << j << '\t' << k << '\t' << board.board[i][j][k] << endl;
             }

@@ -15,7 +15,5 @@ set(SOURCES
    ${SOURCE_PATH}/main.cpp
 )
 
-add_definitions(-DDEBUG)
-
 add_executable(naive_grain_growth ${SOURCES})
 

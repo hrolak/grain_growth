@@ -15,6 +15,8 @@ private:
     Board board;
     FileParser parser;
     double simulationTime;
+    simulationType simulationT;
+    double energyMC;
 
 public:
     Simulation();

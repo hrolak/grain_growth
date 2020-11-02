@@ -27,6 +27,7 @@ public:
     neighbourhoodType getNeighbourhoodType();
     boundaryCondition getBoundaryCondition();
     int getNumberOfSimulationSteps();
+    double getEnergy();
     void readFile();
     void writeTime(double time);
     void writeBoard(Board board);

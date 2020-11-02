@@ -2,7 +2,6 @@
 #include <time.h>
 #include <random>
 
-#ifdef DEBUG
 #include <chrono>
 #include <thread>
 #include <windows.h>
@@ -11,9 +10,11 @@ const WORD colors[] =
 		0x0F, 0x2B, 0x3C, 0x4D, 0x5E, 0x6F,
 		0xA1, 0xB2, 0xC3, 0xD4, 0xE5, 0xF6
 		};
-#endif
+
 
 #include "Board.hpp"
+
+extern bool printGraph;
 
 Cell::Cell()
 {
@@ -100,23 +101,22 @@ void Board::setBoard(int _dimensions[DIMENSION], int _grainsAmount,
 }
 void Board::printBoard()
 {
-    #ifdef DEBUG
-    for(int j = 1; j <= dimensions[1]; ++j)
+    if(printGraph)
     {
-        for(int i = 1; i <= dimensions[0]; ++i)
+        for(int j = 1; j <= dimensions[1]; ++j)
         {
-            for(int k = 1; k <= dimensions[2]; ++k)
+            for(int i = 1; i <= dimensions[0]; ++i)
             {
-                board[i][j][k].printPretty();
+                for(int k = 1; k <= dimensions[2]; ++k)
+                {
+                    board[i][j][k].printPretty();
+                }
+                cout << '\t';
             }
-            cout << '\t';
+            cout << '\n';
         }
-        cout << '\n';
+        cout << "Free left: " << freeFields <<'\n' << '\n';
     }
-    cout << "Free left: " << freeFields <<'\n' << '\n';
-    std::chrono::milliseconds timespan(100);
-    //std::this_thread::sleep_for(timespan);
-    #endif
 }
 
 void Board::generate()
@@ -207,7 +207,7 @@ void Board::fillSurroundingCells(int i, int j, int k)
     }
 }
 
-void Board::iterate()
+void Board::iterateCA()
 {
     for(int i = 1; i <= dimensions[0]; ++i)
     {
@@ -222,14 +222,18 @@ void Board::iterate()
     propagate();
 }
 
-void Board::startSimulation()
+void Board::startCASimulation()
 {
     generate();
     printBoard();
     while(freeFields > 0)
     {
-        iterate();
-        system("cls");
+        iterateCA();
         printBoard();
     }
+}
+
+void Board::startMCSimulation(double energy)
+{
+    cout << "MOMTEKARLO\n";
 }
