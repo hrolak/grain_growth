@@ -141,8 +141,9 @@ void Board::generate()
     freeFields -= grainsAmount;
     propagate();
 
-    for(int i = 0; i < numOfCells; ++i) indexesMC.push_back(i);
-    random_shuffle(indexesMC.begin(), indexesMC.end());
+    for(int i = 0; i < numOfCells; ++i) indexesMC.push_back(i); // generujemy liczby od 0 do numOfCells
+    random_shuffle(indexesMC.begin(), indexesMC.end()); // mieszamy te liczby (bedą w losowej kolejności)
+    // liczby te odpowiadają losowym komórkom z tablicy
 }
 
 void Board::propagate()
@@ -190,7 +191,7 @@ vector<vector<int>> Board::getIndexes(int i, int j, int k)
     return indexes;
 }
 
-vector<int> Board::getMCIndex(int i)
+vector<int> Board::getMCIndex(int i) //konwersja indexu z tablicy indexesMC na współrzedne i j, k
 {
     vector<int> indexes;
     indexes.push_back( (i / (dimensions[1]*dimensions[2])) + 1);
@@ -247,9 +248,8 @@ void Board::iterateMC(double energy)
         Cell nextCell;
         int rndInx = rand() % bor.size();
 
-        while(nextCellId == 0)
+        while(nextCellId == 0) //znalezienie niepustej sasiedniej komórki (pusta będzie w przypadku komórki na granicy i typu absrobic)
         {
-            
             nextCell = board[ bor[rndInx][0] ][ bor[rndInx][1] ][ bor[rndInx][2] ];
             nextCellId = nextCell.getId();
             rndInx = (rndInx+1) % bor.size();
@@ -262,8 +262,12 @@ void Board::iterateMC(double energy)
         for(int j = 0 ; j<bor.size(); ++j)
         {
             int brdCellId = board[ bor[j][0] ][ bor[j][1] ][ bor[j][2] ].getId();
-            if(brdCellId != currCellId) currEnergy+=energy;
-            if(brdCellId != nextCellId) nextEnergy+=energy;
+            if(brdCellId != 0)
+            {
+                if(brdCellId != currCellId) currEnergy+=energy;
+                if(brdCellId != nextCellId) nextEnergy+=energy;
+            }
+
         }
         double deltaEnergy = nextEnergy - currEnergy;
         double prob = exp(-1.0*deltaEnergy/kt);
@@ -273,6 +277,7 @@ void Board::iterateMC(double energy)
             board[ ind[0] ][ ind[1] ][ ind[2] ] = nextCell;
         }
     }
+    random_shuffle(indexesMC.begin(), indexesMC.end());
 }
 
 void Board::startCASimulation()

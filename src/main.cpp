@@ -1,6 +1,6 @@
 #include "Simulation.hpp"
 
-bool printGraph = false;
+bool printGraph = true;
 
 int main(int argc, char *argv[])
 {
@@ -9,5 +9,6 @@ int main(int argc, char *argv[])
     simulation.start();
     simulation.writeDataToFile();
     cout << "Simulation has finished" << endl;
+
     return 0;
 }

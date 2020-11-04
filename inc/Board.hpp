@@ -25,7 +25,7 @@ public:
 
 class Board
 {
-private:
+public:
     double kt = -1.2;
     std::default_random_engine rand_engine;
     int dimensions[DIMENSION];
