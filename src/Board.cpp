@@ -1,7 +1,7 @@
 #include <algorithm>
 #include <iostream>
 #include <time.h>
-
+#include <map>
 #include <chrono>
 #include <thread>
 #include <windows.h>
@@ -25,6 +25,14 @@ Cell::Cell()
 }
 
 Cell::Cell(int _id, int _color, bool _state, double _energy)
+{
+    id     = _id;
+    color  = _color;
+    state  = _state;
+    energy = _energy;
+}
+
+void Cell::setCell(int _id, int _color, bool _state, double _energy)
 {
     id     = _id;
     color  = _color;
@@ -123,7 +131,7 @@ void Board::printBoard()
 
 void Board::generate()
 {
-    srand( time(NULL) );
+    srand( 0 );
     int currentGrains = 0;
     while(currentGrains < grainsAmount)
     {
@@ -140,7 +148,7 @@ void Board::generate()
     }
     freeFields -= grainsAmount;
     propagate();
-
+   srand( time(NULL) );
     for(int i = 0; i < numOfCells; ++i) indexesMC.push_back(i); // generujemy liczby od 0 do numOfCells
     random_shuffle(indexesMC.begin(), indexesMC.end()); // mieszamy te liczby (bedą w losowej kolejności)
     // liczby te odpowiadają losowym komórkom z tablicy
@@ -202,22 +210,43 @@ vector<int> Board::getMCIndex(int i) //konwersja indexu z tablicy indexesMC na w
 
 void Board::fillSurroundingCells(int i, int j, int k)
 {
-    if(board[i][j][k].getState())
+    if(board[i][j][k].getState() == false)
     {
         vector<vector<int>> ind = getIndexes(i , j , k );
+        map<int, int> neighbours;
         for(int l = 0 ; l<ind.size(); ++l)
         {
-            if(backBoard[ind[l][0]][ind[l][1]][ind[l][2]].getState() == false)
+            Cell neighbour = board[ind[l][0]][ind[l][1]][ind[l][2]];
+            if(neighbour.getState())
             {
-                backBoard[ind[l][0]][ind[l][1]][ind[l][2]] = board[i][j][k];
+                if(neighbours.find(neighbour.getId()) == neighbours.end())
+                    neighbours[neighbour.getId()] = 1;
+                else
+                    neighbours[neighbour.getId()]++;
             }
-            else if(board[ind[l][0]][ind[l][1]][ind[l][2]].getState() == false)
+        }
+        if(!neighbours.empty())
+        {
+            vector<int> winners;
+            map<int, int>::iterator it;
+            int maxId = 0;
+            int maxIdVal = 0;
+            for ( it = neighbours.begin(); it != neighbours.end(); it++ )
             {
-                if(backBoard[ind[l][0]][ind[l][1]][ind[l][2]].getId() < board[i][j][k].getId())
+                if(it->second > maxIdVal)
                 {
-                    backBoard[ind[l][0]][ind[l][1]][ind[l][2]] = board[i][j][k];
+                    maxId = it->first;
+                    maxIdVal = it->second;
+                    winners.clear();
+                    winners.push_back(it->first);
+                }
+                else if(it->second == maxIdVal)
+                {
+                    winners.push_back(it->first);
                 }
             }
+            int newId = winners[ rand() % winners.size() ];
+            backBoard[i][j][k].setCell(newId, newId, true, 0.0);
         }
     }
 }

@@ -17,6 +17,7 @@ private:
 public:
     Cell();
     Cell(int _id, int _color, bool _state, double _energy);
+    void setCell(int _id, int _color, bool _state, double _energy);
     int getId();
     bool getState();
     void printPretty();

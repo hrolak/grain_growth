@@ -63,7 +63,16 @@ void FileParser::readFile()
     if( inFile.is_open())
     {
         inFile >> simulationT;
-        inFile >> dimensions[0] >> dimensions[1] >> dimensions[2];
+        inFile >> dimention;
+        if(dimention == "2D")
+        {
+            inFile >> dimensions[1] >> dimensions[2];
+            dimensions[0] = 1;
+        }
+        else if(dimention == "3D")
+        {
+            inFile >> dimensions[0] >> dimensions[1] >> dimensions[2];
+        }
         inFile >> grainsAmount;
         inFile >> neighbourhoodT;
         inFile >> boundaryC;

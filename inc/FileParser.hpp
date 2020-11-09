@@ -11,6 +11,7 @@ private:
     string inputFile;
     string outputFile;
     string simulationT;
+    string dimention;
     int dimensions[DIMENSION];
     int grainsAmount;
     string neighbourhoodT;

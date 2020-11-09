@@ -1,7 +1,8 @@
-MC
-3 10 7
+CA
+3D
+3 10 10
 3
-moore
-periodic
-30
+neuman
+absorbic
+3
 0.9
